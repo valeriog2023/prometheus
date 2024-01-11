@@ -1,0 +1,65 @@
+Create a user and group that will be used to run Node Exporter:
+sudo useradd -M -r -s /bin/false node_exporter
+
+Download and extract the Node Exporter binary:
+wget https://github.com/prometheus/node_exporter/releases/download/v0.18.1/node_exporter-0.18.1.linux-amd64.tar.gz
+tar xvfz node_exporter-0.18.1.linux-amd64.tar.gz
+
+Copy the Node Exporter binary to the appropriate location and set ownership:
+sudo cp node_exporter-0.18.1.linux-amd64/node_exporter /usr/local/bin/
+sudo chown node_exporter:node_exporter /usr/local/bin/node_exporter
+
+Create a systemd unit file for Node Exporter:
+sudo vi /etc/systemd/system/node_exporter.service
+
+Define the Node Exporter service in the unit file:
+
+[Unit]
+Description=Prometheus Node Exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=node_exporter
+Group=node_exporter
+Type=simple
+ExecStart=/usr/local/bin/node_exporter
+
+[Install]
+WantedBy=multi-user.target
+
+
+Start and enable the service:
+
+sudo systemctl daemon-reload
+sudo systemctl start node_exporter
+sudo systemctl enable node_exporter
+Test that your Node Exporter is working by making a request to it from localhost. You should get some metric data on the screen in response to this request:
+
+curl localhost:9100/metrics
+
+
+=========== configure prometheus now to scrape the metrics
+Log in to the Prometheus server to perform the following steps.
+
+Edit the Prometheus config file:
+
+sudo vi /etc/prometheus/prometheus.yml
+Locate the scrape_configs section and add a new entry under that section:
+
+...
+
+  - job_name: 'Test1'
+    static_configs:
+    - targets: ['10.0.1.102:9100'] # assume the node exporter runs here
+
+...
+Restart Prometheus to load the new config:
+sudo systemctl restart prometheus
+
+Navigate to the Prometheus expression browser in your web browser : <PROMETHEUS_IP>:9090.
+
+Run the following query to verify you are able to get some metric data from the LimeDrop web server:
+
+# the structure is: name of the metric{filter}
+node_filesystem_avail_bytes{job="Test1"}

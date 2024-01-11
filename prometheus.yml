@@ -1,0 +1,9 @@
+# basic config
+# from https://mxulises.medium.com/simple-prometheus-setup-on-docker-compose-f702d5f98579
+global:
+  scrape_interval: 10s
+scrape_configs:
+ - job_name: prometheus
+   static_configs:
+    - targets:
+       - prometheus:9090

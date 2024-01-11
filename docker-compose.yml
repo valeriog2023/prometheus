@@ -1,0 +1,16 @@
+# This file is sused to runa  local version in a container
+# from https://mxulises.medium.com/simple-prometheus-setup-on-docker-compose-f702d5f98579
+# docker compose up -d
+version: '3'
+services:
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - "./prometheus.yml:/etc/prometheus/prometheus.yml"
+    networks:
+      - localprom
+    ports:
+      - 9090:9090
+networks:
+  localprom:
+    driver: bridge
