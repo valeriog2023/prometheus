@@ -1,0 +1,26 @@
+<-- This is an example of a console template that monitors a few things                           -->
+<-- metric: up - this is used to verify if Prometheus actually managed to srape the metric or not -->
+<-- metric: node_cpu_seconds_total for the Web server,                          -->     
+<<--       when it is not idle, also, get the rate in the last 5 min, sum it    -->
+<--        and divide it by 2 as there are 2 cpu                                -->
+<-- metric: (node_memory_MemAvailable_bytes / node_memory_MemTotal_byte) in percentage -->
+<--         this is basically the used memory                            -->
+<-- note remove all the comments if you want to make this tempalte work  -->
+{{template "head" .}}                  <-- starts with the marker "head" -->
+{{template "prom_content_head" .}}
+<h1>LimeDrop Web Server Metrics</h1>
+
+<strong>Server Status:</strong> {{ template "prom_query_drilldown" (args "up{job='Web Server'}") }}
+{{template "prom_content_tail" .}}
+{{template "tail"}}
+<br />
+<br />
+<strong>Current CPU Usage:</strong> 
+{{ template "prom_query_drilldown" (args "sum(rate(node_cpu_seconds_total{instance='limedrop-web:9100', mode!='idle'}[5m])) * 100 / 2" "%") }}
+{{template "prom_content_tail" .}}
+{{template "tail"}}
+<br />
+<br />
+<strong>Current Memory Usage:</strong> {{ template "prom_query_drilldown" (args "100 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100" "%") }}
+{{template "prom_content_tail" .}}
+{{template "tail"}}               <-- ends with the marker tail -->

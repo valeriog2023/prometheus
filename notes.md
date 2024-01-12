@@ -118,3 +118,27 @@ end=$(date +'%Y-%m-%dT%H:%M:%SZ')
 curl "localhost:9090/api/v1/query_range? query=node_cpu_seconds_total&start=$start&end=$end&step=1m"
 ```   
 Note tha promtheus expect this format for dates: ```%Y-%m-%dT%H:%M:%SZ``` 
+
+
+### Expression browser
+Expression browwser is the native Prometheus UI, available at http://<ip>:9090
+**Console templates** are a way to customize templates using the native prometheus server; they are written in golang template language (similar to jonja2) and they can include html
+when you init the srver you can specify the location of the templates with the option
+```
+--web.console.templates <path, e.g. "/etc/prometheus/templates">
+```
+When using the browser you can see the available templates at
+```
+http://<ip>:9090/consoles
+```
+A simple template file would be something like this below; note that 
+ * it uses an existing tempalte as a basis: **prom query drilldow**
+ * the query is pased inside  the value of **args**
+```
+{{template "head" .}}
+{{template "prom_content_head" .}}
+<h1>Disk IO Rate</h1>
+<br />
+Current Disk IO: {{ template "prom_query_drilldown" (args "rate(node_disk_io_time_seconds_total{job='Linux Server'}[5m])") }}
+{{template "prom_content_tail" .}} {{template "tail"}}
+```

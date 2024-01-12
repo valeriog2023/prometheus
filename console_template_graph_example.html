@@ -1,0 +1,23 @@
+{{template "head" .}}
+{{template "prom_content_head" .}}
+<h1>LimeDrop Web Server Metrics</h1>
+
+<h3>CPU Usage</h3>
+<div id="cpuGraph"></div>
+<script>
+new PromConsole.Graph({
+  node: document.querySelector("#cpuGraph"),
+  expr: "sum(rate(node_cpu_seconds_total{instance='limedrop-web:9100',mode!='idle'}[5m])) * 100 / 2"
+})
+</script>
+
+<h3>Memory Usage</h3>
+<div id="memGraph"></div>
+<script>
+new PromConsole.Graph({
+  node: document.querySelector("#memGraph"),
+  expr: "100 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100"
+})
+</script>
+{{template "prom_content_tail" .}}
+{{template "tail"}}
