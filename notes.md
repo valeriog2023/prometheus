@@ -132,13 +132,40 @@ When using the browser you can see the available templates at
 http://<ip>:9090/consoles
 ```
 A simple template file would be something like this below; note that 
+ * To create the template you place the content in a *<file.html>* file inside the templates folder
+ * To access the template you point to ```http://<ip>:9090/consoles/<file.html>```
  * it uses an existing tempalte as a basis: **prom query drilldow**
  * the query is pased inside  the value of **args**
+ * you can use a **graph** library
+      
 ```
 {{template "head" .}}
 {{template "prom_content_head" .}}
 <h1>Disk IO Rate</h1>
 <br />
 Current Disk IO: {{ template "prom_query_drilldown" (args "rate(node_disk_io_time_seconds_total{job='Linux Server'}[5m])") }}
+{{template "prom_content_tail" .}} {{template "tail"}}
+```
+using Graph library
+```
+{{template "head" .}}
+{{template "prom_content_head" .}}
+<h1>Disk IO Rate</h1>
+<br />
+Current Disk IO: {{ template "prom_query_drilldown" (args "rate(node _disk_io_time_seconds_total{job='Linux Server'}[5m])") }}
+<br />
+<br />
+<!-- This is div that will be used to display the Graph; the name will be used later -->
+<div id="diskIoGraph"></div>
+<script>
+<-- Here we create a new Graph                                -->
+<-- Note that                                                 -->
+<--   node(required) uses javascript to get the id of the div -->
+<--   expr(required) contains the expression to graph         -->
+new PromConsole.Graph({   
+node: document.querySelector("#diskIoGraph"),
+expr: "rate(node_disk_io_time_seconds_total{job='Linux Server'} [5m])"
+})
+</script>
 {{template "prom_content_tail" .}} {{template "tail"}}
 ```

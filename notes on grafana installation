@@ -1,0 +1,34 @@
+Installing and Configuring Grafana
+
+Add the GPG key for the Grafana OSS repository, and then add the repository:
+wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
+sudo add-apt-repository "deb https://packages.grafana.com/oss/deb stable main"
+
+Install the Grafana package:
+  sudo apt-get install -y apt-transport-https software-properties- common wget
+  
+ sudo apt-get update
+ sudo apt-get install grafana=6.6.2
+
+Enable and start the grafana-server service: sudo systemctl enable grafana-server
+sudo systemctl start grafana-server
+
+Make sure the service is in the Active (running) state: sudo systemctl status grafana-server
+You can verify Grafana is working by accessing it in a web browser at http:// <IP>:3000.
+Log in to Grafana with the username admin and password admin. 
+Reset the password when prompted.
+
+Click Add data source.
+Select Prometheus.
+
+For the URL, enter http://<PROMETHEUS_IP>:9090. 
+Click Save & Test. 
+You should see a banner that says Data source is working. 
+If you click on the explore button in Grafana you are moved to a page where you can
+select a data source and run a query for them (if it is Prometheus it's going to be PromSQl)
+Test your setup by running a query to get some Prometheus data. 
+
+In the PromQL Query input, enter a simple query, such as up. Execute the query. You should see some data appear.
+   
+Grafana has a set of preconfigured dashboards (for Prometheus and other sources)
+   
