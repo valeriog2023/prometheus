@@ -1,0 +1,39 @@
+# Example of a node exporter to monitor Docker on a server
+# See also https://docs.docker.com/config/daemon/prometheus/
+=====================================
+== Docker server node (IP: <X>)
+=====================================
+1) Modify the docker daemon configuration
+sudo vi /etc/docker/daemon.json
+Add configuration to enable experimental mode and set the metrics address:
+# Note you can't use localhost here.. but need to use the actual IP you mean to scrape
+# or you won't be able to reach it
+{
+  "experimental": true,
+  "metrics-addr": "<IP>:9323"
+}
+
+2) Restart the docker service
+systemctl restart docker
+systemctl status docker
+
+verify with:
+sudo systemctl status docker
+curl localhost:9323/metrics
+
+
+=====================================
+== Prometheus Server
+=====================================
+1) Edit prometheus config (Under the scrape_configs section, add a scrape configuration for the Apache exporter)
+
+vi /etc/prometheus/prometheus.yml
+
+- job_name: 'Apache Server'
+  static_configs:
+  - targets: ['<IP/name>:9323']
+
+2) Restart Prometheus to load the new configuration:
+sudo systemctl restart prometheus
+
+3) Verify via the native interface (e.g. query for apache_up or apache_workers )

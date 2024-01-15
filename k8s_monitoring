@@ -1,0 +1,55 @@
+# You can also monitor K8s using Kube-state-metrics
+# See https://github.com/kubernetes/kube-state-metrics
+
+==================================
+== K8s Node
+==================================
+1) Clone Kube-state-metrics repo and deploy the files in the kubernets folder
+   (all files in the kubernetes folder in the repo)
+   it will deploy pod/svc svc account role etc.. in kube-system namespace
+
+git clone https://github.com/kubernetes/kube-state-metrics.git
+cd kube-state-metrics/
+git checkout v1.8.0    # K8s version might not be compatible withkube-state-metrics.. need to check versions
+kubectl apply -f kubernetes
+
+
+2) Create a K8s service to make the metrics available outside K8s
+   This makes the svc available in the nodeport:30000
+cat > k8s_service   << EOF
+kind: Service
+apiVersion: v1
+metadata:
+  namespace: kube-system
+  name: kube-state-nodeport
+spec:
+  selector:
+    k8s-app: kube-state-metrics
+  ports:
+  - protocol: TCP
+    port: 8080
+    nodePort: 30000
+  type: NodePort
+
+EOF
+
+3) Verify the node port can be queried
+
+curl localhost:30000/metrics
+
+
+==================================
+== Prometheus Node
+==================================
+1) Add the config to scrape the nodes to /etc/prometheus/promtheus.yml
+
+- job_name: 'Kubernetes'
+  static_configs:
+  - targets: ['<node_ip>:30000']
+
+2) restart prometheus and run a query to verify you can see the metrics (e.g. kube_pod_status_ready{namespace="default",condition="true"})
+sudo systemctl rstart promtheus
+
+there are really lots of metrics (they start with kube)..
+E.g. pods that are ready in the dfault namespace
+kube_pod_status_ready{namespace="default",condition="true"}

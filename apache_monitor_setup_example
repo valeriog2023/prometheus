@@ -1,0 +1,74 @@
+Example of a node exporter to monitor apacha on a server
+
+=====================================
+== Apache server node (IP: <X>)
+=====================================
+1) Create a user for the exporter
+# note the options:
+# -M : do not create home folder
+# -r : create a system account i.e. a user with a UID lower than the value of UID_MIN defined in /etc/login.defs 
+#                               and whose password does not expire. 
+# -s /bin/false : user can't login via shell
+sudo useradd -M -r -s /bin/false apache_exporter
+
+
+2) downalod, untar the exporter and copy it into /usr/local/bin
+   Also change the owner of the file to the account created
+
+#
+# Note you can find the release by browsing 
+# https://github.com/Lusitaniae/apache_exporter
+# releases are available  on the right side and you need to look for all assets
+# Note: ahd to upgarde the version as it was giving errors with custom ports
+wget https://github.com/Lusitaniae/apache_exporter/releases/download/v1.0.5/apache_exporter-1.0.5.linux-amd64.tar.gz
+tar xvfz apache_exporter-1.0.5.linux-amd64.tar.gz
+sudo cp apache_exporter-1.0.5.linux-amd64/apache_exporter /usr/local/bin/
+sudo chown apache_exporter:apache_exporter /usr/local/bin/apache_exporter
+
+3) Create a service via a sytemd unit
+# Note the exec start line can get input params like in this case where I'm using a custom port
+sudo vi /etc/systemd/system/apache_exporter.service
+[Unit]
+Description=Prometheus Apache Exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=apache_exporter
+Group=apache_exporter
+Type=simple
+ExecStart=/usr/local/bin/apache_exporter \
+          --web.listen-address=:9500 
+
+[Install]
+WantedBy=multi-user.target
+
+
+4) Run and verify
+systemctl daemon-reload
+systemctl enable apache_exporter
+systemctl start apache_exporter
+
+verify with:
+sudo systemctl status apache_exporter
+curl localhost:9500/metrics
+
+
+=====================================
+== Prometheus Server
+=====================================
+1) Edit prometheus config (Under the scrape_configs section, add a scrape configuration for the Apache exporter)
+
+vi /etc/prometheus/prometheus.yml
+
+- job_name: 'Apache Server'
+  static_configs:
+  - targets: ['<IP/name>:9500']
+- job_name: "docker"
+  static_configs:
+  - targets: [ 'limedrop-docker:9323']  
+
+2) Restart Prometheus to load the new configuration:
+sudo systemctl restart prometheus
+
+3) Verify via the native interface (e.g. query for engine_daemon_container_states_containers)

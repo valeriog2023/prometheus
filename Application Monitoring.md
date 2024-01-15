@@ -29,8 +29,9 @@ Prometheus automatically creates meta metrics, e.g.
      was the scrape successful  
   *  **scrape_duration_seconds"<job_name>, instance="<instance_name>}**:   
      number of seconds it takes to complete the scrape, etc..
-
-
+<P>
+Note the list of targets monitored by prometheus is available (both for web and api) here:   
+```curl <IP>:9090/api/v1/targets```
 
 
 # Push Gateway
