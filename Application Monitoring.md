@@ -30,8 +30,14 @@ Prometheus automatically creates meta metrics, e.g.
   *  **scrape_duration_seconds"<job_name>, instance="<instance_name>}**:   
      number of seconds it takes to complete the scrape, etc..
 <P>
-Note the list of targets monitored by prometheus is available (both for web and api) here:   
+
+Note: 
+*  the list of targets monitored by prometheus is available (both for web and api) here:
 ```curl <IP>:9090/api/v1/targets```
+*  You can get the list of all metrics with this query: ```{__name__!=""}```  
+   You can also filter the list based on a label like job or instance, e.g.:  
+   ```{__name__!="",job="<job_name"} or {__name__!="",instance="<instance_ip>"}```
+
 
 
 # Push Gateway
