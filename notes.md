@@ -3,12 +3,17 @@ Prometheus is based on
 - Labels - provide multi dimensions to a metric; ech metric can be associated with multiple labels
   Labels are comma separated k=v pairs inside curly braces
 The combination of a metric and a unique set of labels defines a time series
+Note: Assuming you run it in docker locally
+      you can see the status of the prometheus server pointing at: http://localhost:9090/status
+      you can also see the targets pointing at http://localhost:9090/targets
+      you can run a query just browsing to http://localhost:9090
 
-Note: when browsing a metric in the browser
+Note: when browsing a metric in the browser: 
 you can do
 metric_name                  e.g process_cpu_seconds_total
 metric_name[period of time], e.g. process_cpu_seconds_total[5m]
 metric_name{k=v}[time range] e.g process_cpu_seconds_total{job="prometheus"}[5m]
+
 
 Metric Types refer to assumption of the kind of data exporter provides
 - **Counter**: single number that only increases or resets to zero<P>
